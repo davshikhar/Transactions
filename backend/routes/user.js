@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const { UserModel } = require('../database/db');
+const { authMiddleware } = require('../middleware');
 const userRouter = Router();
 
 const secret = require('../config').JWT_SECRET;
@@ -8,7 +9,7 @@ const requiredBody = z.object({
         firstname:z.string().max(20),
         lastname:z.string().maz(20),
         email:z.string().email(),
-        password:z.string().max(50).regex(/[A-Z]/,{message:"password must contain at least one uppercase letter"})
+        password:z.string().min(20).max(50).regex(/[A-Z]/,{message:"password must contain at least one uppercase letter"})
     });
 
 userRouter.post('/singup', async (req,res)=>{
@@ -77,28 +78,47 @@ userRouter.post('/signin', async (req,res)=>{
     });
 });
 
-app.put('/update',async (req,res)=>{
+userRouter.put('/',authMiddleware ,async (req,res)=>{
     //endpoint to update the user details
-    const {token, firstname, lastname, password} = req.body;
-    if(!token){
-        return res.status(401).json({message:"Unauthorized"});
-    }
-    const verify = jwt.verify(token, secret);
-    if(!verify){
-        return res.status(401).json({message:"Unauthorized"});
-    }
+    // const {token, firstname, lastname, password} = req.body;
+    // if(!token){
+    //     return res.status(401).json({message:"Unauthorized"});
+    // }
+    // const verify = jwt.verify(token, secret);
+    // if(!verify){
+    //     return res.status(401).json({message:"Unauthorized"});
+    // }
 
-    const userId = verify.id;
+    const userId = req.userId;
+    const {firstname, lastname, password} = req.body;
+        const parsedDataWithSuccess = requiredBody.safeParse({firstname, lastname, password});
+    if(!parsedDataWithSuccess.success){
+        return res.status(411).json({message:"Invalid inputs", error:parsedDataWithSuccess.error});
+    }
+    const passwordHash = await bcrypt.hash(password,3);
+
     try{
         await UserModel.findByIdAndUpdate(userId,{
             firstname:firstname,
             lastname:lastname,
-            password:password});
+            password:passwordHash});
             return res.status(200).json({message:"User updated successfully"});
     }
     catch(e){
-        return res.status(500).json({message:"Error updating user", error:e});
+        return res.status(500).json({message:"Error while updating user", error:e});
     }
+})
+
+userRouter.get('/bulk', authMiddleware, async(req,res)=>{
+    //try to get all the existing users from the database
+    const filter = req.query.filter;
+    const searchedUser = await UserModel.find({$or:[
+        {firstname:{$regex:filter, $options:"i"}},
+        {lastname:{$regex:filter, $options:"i"}},
+        {email:{$regex:filter, $options:"i"}}
+    ]}).select("-password");
+    
+    return res.status(200).json({users:searchedUser});
 })
 
 module.exports = {
