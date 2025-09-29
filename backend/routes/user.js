@@ -2,7 +2,7 @@ const { Router } = require('express');
 const { UserModel } = require('../database/db');
 const userRouter = Router();
 
-const secret = "random123"
+const secret = require('../config').JWT_SECRET;
 
 const requiredBody = z.object({
         firstname:z.string().max(20),
@@ -33,9 +33,7 @@ userRouter.post('/singup', async (req,res)=>{
         });
     }
     catch(e){
-        res.json({
-            message:"Error creating user in the database"
-        });
+        console.log(e);
         errorThrown = true;
     }
 
@@ -43,6 +41,9 @@ userRouter.post('/singup', async (req,res)=>{
         return res.status(201).json({
             message:"User created successfully"
         });
+    }
+    else{
+        res.status(411).json({message:"Email already taken/incorrect inputs"});
     }
 });
 
@@ -59,14 +60,14 @@ userRouter.post('/signin', async (req,res)=>{
     const user = await UserModel.find({email:email});
 
     if(!user){
-        return res.status(400).json({
+        return res.status(411).json({
             message:"User not found in the database"
         });
     }
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if(!passwordMatch){
-        res.status(400).json({message:"Password does not match"});
+        res.status(411).json({message:"Password does not match"});
     }
 
     const token = jwt.sign({id:user._id.toString()},secret);
