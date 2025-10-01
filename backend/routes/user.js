@@ -26,12 +26,18 @@ userRouter.post('/singup', async (req,res)=>{
     //store the user in the database along with the hashed password first check if any error comes or not!
     let errorThrown = false;
     try{
-        await UserModel.create({
+        const user = await UserModel.create({
             firstname:firstname,
             lastname:lastname,
             email:email,
             password:hashedPassword
         });
+
+        await AccountModel.create({
+            userId:user._id,
+            balance:0,
+        });
+        
     }
     catch(e){
         console.log(e);
@@ -118,7 +124,14 @@ userRouter.get('/bulk', authMiddleware, async(req,res)=>{
         {email:{$regex:filter, $options:"i"}}
     ]}).select("-password");
     
-    return res.status(200).json({users:searchedUser});
+    return res.status(200).json({
+        user:searchedUser.map(user=>({
+            firstname:user.firstname,
+            lastname:user.lastname,
+            email:user.email,
+            id:user._id,
+        }))
+    });
 })
 
 module.exports = {
