@@ -1,4 +1,25 @@
+import { useRef } from "react"
+
 export const Signup = () => {
+    const navigate = useNavigate();
+    const emailRef = useRef();
+    const passwordRef = useRef();
+
+    async function SignupUser(){
+        const email = emailRef.current.value;
+        const password = passwordRef.current.value;
+
+        console.log(email, password);
+        const response = await axios.post(`${BACKEND_URL}/api/v1/signup`,{
+            email,
+            password
+        });
+        const jwt = response.data.token;
+        localStorage.setItem("token", jwt);
+        alert("Signup Successful");
+        navigate("/dashboard");
+    }
+
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50">
             <div className="absolute inset-0 bg-black opacity-50"></div>
@@ -26,10 +47,10 @@ export const Signup = () => {
 
                 <div className=''>
                     <div className="pt-5 space-y-4 flex flex-col">
-                        <label>Username<br />
-                            <input type="text" title="Username" name="Username" placeholder="xyz" className='border rounded-lg p-2 w-full mt-1' /></label>
+                        <label>Email<br />
+                            <input ref={emailRef} type="text" title="Email" name="Email" placeholder="abc@gmail.com" className='border rounded-lg p-2 w-full mt-1' /></label>
                         <label>Password <br />
-                            <input type="password" title="Password" name="Password" placeholder="**********" className='border rounded-lg p-2 w-full mt-1' />
+                            <input ref={passowrdRef} type="password" title="Password" name="Password" placeholder="**********" className='border rounded-lg p-2 w-full mt-1' />
                         </label>
                     </div>
                     <div className="flex pt-6 w-full">
