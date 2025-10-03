@@ -1,26 +1,25 @@
-import { useRef } from "react"
+import { useNavigate } from "react-router-dom";
 
-export const Signup = () => {
+export const Signin = () =>{
     const navigate = useNavigate();
     const emailRef = useRef();
     const passwordRef = useRef();
 
-    async function SignupUser(){
+    async function SigninUser(){
         const email = emailRef.current.value;
         const password = passwordRef.current.value;
 
-        console.log(email, password);
-        const response = await axios.post(`${BACKEND_URL}/api/v1/signup`,{
-            email,
-            password
+        const response = await axios.post(`${BACKEND_URL}/api/v1/signin`,{
+            email,password
         });
+
         const jwt = response.data.token;
         localStorage.setItem("token", jwt);
-        alert("Signup Successful");
+        alert("Signin Successful");
         navigate("/dashboard");
     }
 
-    return (
+    return(
         <div className="fixed inset-0 flex items-center justify-center z-50">
             <div className="absolute inset-0 bg-black opacity-50"></div>
             <div className="relative z-10 bg-white p-6 rounded-2xl shadow-lg w-full max-w-md">
@@ -54,12 +53,12 @@ export const Signup = () => {
                         </label>
                     </div>
                     <div className="flex pt-6 w-full">
-                        <button className='w-full text-lg border rounded-lg bg-blue-600 cursor-pointer px-6 py-1 hover:bg-blue-500'>Create an account</button>
+                        <button className='w-full text-lg border rounded-lg bg-blue-600 cursor-pointer px-6 py-1 hover:bg-blue-500'>Signin</button>
                     </div>
                     <div className='flex pt-2 text-sm'>
-                        <div>Already have an account?</div>
-                        <Link to="/signin">
-                        <div className='mx-1 text-blue-600 font-semibold'>Login Here</div>
+                        <div>New User?</div>
+                        <Link to="/signup">
+                        <div className='mx-1 text-blue-600 font-semibold'>Register Here</div>
                         </Link>
                     </div>
                 </div>
