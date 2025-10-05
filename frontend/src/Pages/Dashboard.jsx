@@ -1,4 +1,20 @@
 export const Dashboard = () => {
+
+    async function fetchAmount(){
+        const token = localStorage.getItem("token");
+        if(!token){
+            alert("Login First");
+            return;
+        }
+        const response = await axios.get(`${BACKEND_URL}/api/v1/getData`,{
+            headers:{
+                Authorization: `Bearer ${token}`
+            }
+        });
+        console.log(response.data);
+        alert("Data fetched successfully");
+    }
+
     return (
         <div>
             <div className="flex align-items-center justify-between p-6 text-white">
@@ -13,6 +29,9 @@ export const Dashboard = () => {
                 </div>
             </div>
             <div className="border-b border-gray-300"/>
+            <div>
+
+            </div>
         </div>
     )
 }
