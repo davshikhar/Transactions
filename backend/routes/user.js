@@ -134,6 +134,18 @@ userRouter.get('/bulk', authMiddleware, async(req,res)=>{
     });
 })
 
+userRouter.get('/getData',authMiddleware, async (req,res)=>{
+    //to get the user data
+    const userId = req.userId;
+    const user = await UserModel.findById(userId).select("-password");
+    if(!user){
+        return res.status(404).json({message:"User not found"});
+    }
+    else{
+        return res.status(200).json({user:user});
+    }
+})
+
 module.exports = {
     userRouter:userRouter
 };

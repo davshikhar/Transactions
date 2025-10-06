@@ -29,8 +29,13 @@ export const Dashboard = () => {
                 </div>
             </div>
             <div className="border-b border-gray-300"/>
-            <div>
-
+            <div className="text-2xl font-bold p-6 text-black">
+                Welcome to dashboard, User!
+            </div>
+            <div className="px-4">
+                <input type="tetx" placeholder="Search Transactions" 
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
             </div>
         </div>
     )
